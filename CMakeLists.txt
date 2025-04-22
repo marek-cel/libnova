@@ -22,6 +22,8 @@ if(WIN32)
     add_definitions(-D__WIN32__)
 endif(WIN32)
 
+add_definitions(-DCMAKE_BUILDING)
+
 # add more optimization flags to the visual studio release compilation
 if(MSVC)
     set(CMAKE_CXX_FLAGS_RELEASE "/MD /Ox /Ob2 /D NDEBUG")
@@ -69,5 +71,5 @@ include_directories(${libnova_SOURCE_DIR}/src)
 
 # traverse the sub directories
 add_subdirectory(src)
-add_subdirectory(lntest)
-add_subdirectory(examples)
+# add_subdirectory(lntest)
+# add_subdirectory(examples)
