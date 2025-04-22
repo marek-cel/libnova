@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *     
+ *
  */
 
 /*------------------------------------------------------------------------*/
@@ -36,6 +36,7 @@
 /*------------------------------------------------------------------------*/
 
 /**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -51,12 +52,20 @@
 /* Include unistd.h only if not on a Win32 platform */
 #ifndef __WIN32__
 #include <unistd.h>
-#else
+#include <stdbool.h>
 
-/* local types and macros */
+#ifndef BOOL
 typedef int BOOL;
+#endif
+
+#ifndef TRUE
 #define TRUE 1
+#endif
+
+#ifndef FALSE
 #define FALSE 0
+#endif
+
 #define iswhite(c)  ((c)== ' ' || (c)=='\t')
 
 #endif  /* !__WIN32__ */
@@ -75,7 +84,7 @@ static inline char *trim(char *x)
         return(x);
 
     y = x + strlen(x)-1;
-    while (y >= x && isspace(*y)) 
+    while (y >= x && isspace(*y))
         *y-- = 0; /* skip white space */
 
     return x;
@@ -100,31 +109,31 @@ static inline void skipwhite(char **s)
 *
 * Obtains Latitude, Longitude, RA or Declination from a string.
 *
-*  If the last char is N/S doesn't accept more than 90 degrees.            
-*  If it is E/W doesn't accept more than 180 degrees.                      
-*  If they are hours don't accept more than 24:00                          
-*                                                                          
-*  Any position can be expressed as follows:                               
-*  (please use a 8 bits charset if you want                                
-*  to view the degrees separator char '0xba')                              
+*  If the last char is N/S doesn't accept more than 90 degrees.
+*  If it is E/W doesn't accept more than 180 degrees.
+*  If they are hours don't accept more than 24:00
 *
-*  42.30.35,53                                                             
-*  90�0'0,01 W                                                             
-*  42�30'35.53 N                                                           
-*  42�30'35.53S                                                            
-*  42�30'N                                                                 
-*  - 42.30.35.53                                                           
-*   42:30:35.53 S                                                          
-*  + 42.30.35.53                                                           
-*  +42�30 35,53                                                            
-*   23h36'45,0                                                             
-*                                                                          
-*                                                                          
-*  42:30:35.53 S = -42�30'35.53"                                           
-*  + 42 30.35.53 S the same previous position, the plus (+) sign is        
-*  considered like an error, the last 'S' has precedence over the sign     
-*                                                                          
-*  90�0'0,01 N ERROR: +- 90�0'00.00" latitude limit                        
+*  Any position can be expressed as follows:
+*  (please use a 8 bits charset if you want
+*  to view the degrees separator char '0xba')
+*
+*  42.30.35,53
+*  90�0'0,01 W
+*  42�30'35.53 N
+*  42�30'35.53S
+*  42�30'N
+*  - 42.30.35.53
+*   42:30:35.53 S
+*  + 42.30.35.53
+*  +42�30 35,53
+*   23h36'45,0
+*
+*
+*  42:30:35.53 S = -42�30'35.53"
+*  + 42 30.35.53 S the same previous position, the plus (+) sign is
+*  considered like an error, the last 'S' has precedence over the sign
+*
+*  90�0'0,01 N ERROR: +- 90�0'00.00" latitude limit
 *
 */
 double get_dec_location(char *s)
@@ -150,20 +159,20 @@ double get_dec_location(char *s)
 	memcpy(ptr, s, count);
 	trim(ptr);
 	skipwhite(&ptr);
-        
+
     /* the last letter has precedence over the sign */
-	if (strpbrk(ptr,"SsWw") != NULL) 
+	if (strpbrk(ptr,"SsWw") != NULL)
 		negative = TRUE;
 
 	if (*ptr == '+' || *ptr == '-')
-		negative = (char) (*ptr++ == '-' ? TRUE : negative);	
+		negative = (char) (*ptr++ == '-' ? TRUE : negative);
 	skipwhite(&ptr);
 	if ((hh = strpbrk(ptr,"Hh")) != NULL && hh < ptr + 3)
             type = HOURS;
-        else 
+        else
             if (strpbrk(ptr,"SsNn") != NULL)
 		type = LAT;
-	    else 
+	    else
  	        type = DEGREES; /* unspecified, the caller must control it */
 
 	if ((ptr = strtok(ptr,delim1)) != NULL)
@@ -185,7 +194,7 @@ double get_dec_location(char *s)
 		if (seconds > 59)
 			return (-0.0);
 	}
-	
+
 	if ((ptr = strtok(NULL," \n\t")) != NULL) {
 		skipwhite(&ptr);
 		if (*ptr == 'S' || *ptr == 'W' || *ptr == 's' || *ptr == 'w')
@@ -209,11 +218,11 @@ double get_dec_location(char *s)
 }
 
 
-/*! \fn char * get_humanr_location(double location)    
+/*! \fn char * get_humanr_location(double location)
 * \param location Location angle in degress
 * \return Angle string
 *
-* Obtains a human readable location in the form: dd�mm'ss.ss"             
+* Obtains a human readable location in the form: dd�mm'ss.ss"
 */
 char *get_humanr_location(double location)
 {
@@ -246,15 +255,15 @@ char *get_humanr_location(double location)
 double interpolate3 (double n, double y1, double y2, double y3)
 {
 	double y, a, b, c;
-	
+
 	/* equ 3.2 */
 	a = y2 - y1;
 	b = y3 - y2;
 	c = a - b;
-	
+
 	/* equ 3.3 */
 	y = y2 + n / 2.0 * (a + b + n * c);
-	
+
 	return y;
 }
 
@@ -276,7 +285,7 @@ double interpolate5 (double n, double y1, double y2, double y3, double y4,
 {
 	double y, A, B, C, D, E, F, G, H, J, K;
 	double n2, n3, n4;
-	
+
 	/* equ 3.8 */
 	A = y2 - y1;
 	B = y3 - y2;
@@ -288,17 +297,17 @@ double interpolate5 (double n, double y1, double y2, double y3, double y4,
 	H = F - E;
 	J = G - F;
 	K = J - H;
-	
+
 	y = 0.0;
 	n2 = n* n;
 	n3 = n2 * n;
 	n4 = n3 * n;
-	
+
 	y += y3;
 	y += n * ((B + C ) / 2.0 - (H + J) / 12.0);
 	y += n2 * (F / 2.0 - K / 24.0);
 	y += n3 * ((H + J) / 12.0);
 	y += n4 * (K / 24.0);
-	
+
 	return y;
 }
